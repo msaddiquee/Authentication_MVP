@@ -5,7 +5,7 @@ import { router } from "./routes/routes.js";
 
 export const PORT = process.env.PORT;
 export const app: Express = express();
-// Comment: Register express.json body parser before routes to ensure req.body is parsed
+
 app.use(express.json());
 app.use(router);
 

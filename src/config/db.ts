@@ -12,7 +12,6 @@ export const connectdb = async () => {
         await mongoose.connect(uri);
     }
     catch(error){
-        // Comment: Rethrow database connection errors to prevent the application from starting in a failed state
         console.error("Database connection failed:", error);
         throw error;
     }
