@@ -9,4 +9,4 @@ const ProductSchema = new mongoose.Schema({
     description: String,
 }, {versionKey: false});
 
-export const Product = mongoose.model("sampleCollection", ProductSchema);
+export const Product = mongoose.model("samplecollection", ProductSchema);
