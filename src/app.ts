@@ -1,6 +1,6 @@
 import express, { type Express, type Request, type Response } from "express";
 import "dotenv/config";
-import { router } from "./routes/routes.js";
+import { router } from "./routes/productRoutes.js";
 
 
 export const PORT = process.env.PORT;

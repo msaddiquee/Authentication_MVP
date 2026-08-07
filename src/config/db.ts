@@ -9,10 +9,14 @@ if(!uri){
 
 export const connectdb = async () => {
     try {
+        console.log("Connecting DB...");
         await mongoose.connect(uri);
     }
     catch(error){
         console.error("Database connection failed:", error);
         throw error;
+    }
+    finally{
+        console.log("DB connected Successfully..");
     }
 }

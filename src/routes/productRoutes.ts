@@ -4,6 +4,6 @@ import { getAllProducts,  createProduct,  deleteProduct,  updateProduct } from "
 export const router = Router();
 
 router.get("/products", getAllProducts);
-router.post("/product", createProduct);
-router.delete("/product/:id", deleteProduct);
-router.put("/product/:id", updateProduct);
+router.post("/products", createProduct);
+router.delete("/products/:id", deleteProduct);
+router.put("/products/:id", updateProduct);
