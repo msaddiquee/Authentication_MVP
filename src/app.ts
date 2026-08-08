@@ -1,11 +1,10 @@
 import express, { type Express, type Request, type Response } from "express";
 import "dotenv/config";
-import { Router } from "express";
+import router from "./routes/productRoutes.js";
 
 
 export const PORT = process.env.PORT;
 export const app: Express = express();
-export const router = Router();
 
 app.use(express.json());
 app.use(router);
