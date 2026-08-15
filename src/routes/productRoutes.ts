@@ -3,9 +3,9 @@ import { Router } from "express";
 
 export const router = Router();
 
-router.get("/products", getAllProducts);
-router.post("/products", createProduct);
-router.delete("/products/:id", deleteProduct);
-router.put("/products/:id", updateProduct);
+router.get("/", getAllProducts);
+router.post("/", createProduct);
+router.delete("/:id", deleteProduct);
+router.put("/:id", updateProduct);
 
 export default router;
