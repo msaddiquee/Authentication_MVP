@@ -1,4 +1,4 @@
-import { router } from "../app.js";
+import { router } from "./productRoutes.js";
 import { registerUser, loginUser } from "../controllers/userController.js"
 
 router.post("/register", registerUser);
