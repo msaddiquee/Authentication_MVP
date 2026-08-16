@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { User } from "../models/userModel.js";
+import "dotenv/config";
 
 // @route   POST /api/users/
 // @desc    register a user
@@ -34,10 +35,11 @@ const registerUser = asyncHandler(async(req: Request, res: Response) => {
     });
 
     if (user){
-        res.status(200).json({ 
+        res.status(201).json({ 
             _id: user.id,
             name: user.name,
             email: user.email,
+            token: generateToken(user._id),
         });
     } else {
         res.status(400);
@@ -58,6 +60,7 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
             _id: user.id,
             name: user.name,
             email: user.email,
+            token: generateToken(user._id),
         });
     }
 
@@ -69,12 +72,19 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
 
 // @route   GET /api/users/me
 // @desc    GET user data
-// access   Public
+// access   Private
 const getMe = asyncHandler(async(req: Request, res: Response) => {
     res.json({ message: "User data" });
 });
 
 
+const jwt_secret = process.env.JWT_SECRET || "abc123";
+
+const generateToken = (id) => {
+    return jwt.sign({ id }, jwt_secret, {
+        expiresIn: "30d",
+    })
+}
 export {
     registerUser,
     loginUser,
