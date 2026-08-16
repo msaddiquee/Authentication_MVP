@@ -9,8 +9,8 @@ export const PORT = process.env.PORT;
 export const app: Express = express();
 
 app.use(express.json());
-app.use(productRoutes);
-app.use(userRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/users", userRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
