@@ -73,7 +73,18 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
 // @desc    GET user data
 // access   Private
 const getMe = asyncHandler(async(req: Request, res: Response) => {
-    res.json({ message: "User data" });
+    const user = await User.findById( req.user.id );
+
+    if (!user) {
+        res.status(404);
+        throw new Error("User not found");
+    }
+
+    res.status(200).json({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+    })
 });
 
 
