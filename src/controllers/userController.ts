@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { User } from "../models/userModel.js";
+import { Types } from "mongoose";
 
 // @route   POST /api/users/
 // @desc    register a user
@@ -90,7 +91,7 @@ const getMe = asyncHandler(async(req: Request, res: Response) => {
 
 const jwt_secret = process.env.JWT_SECRET || "abc123";
 
-const generateToken = (id) => {
+const generateToken = (id: Types.ObjectId | string ) => {
     return jwt.sign({ id }, jwt_secret, {
         expiresIn: "30d",
     })

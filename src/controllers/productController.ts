@@ -3,7 +3,7 @@ import type { Request, Response } from "express";
 
 // @route   POST /api/users/
 // @desc    get all products
-// access   Public
+// access   Private
 export const getAllProducts = async(req: Request, res: Response) => {
     try{
         const products = await Product.find();
@@ -16,7 +16,7 @@ export const getAllProducts = async(req: Request, res: Response) => {
 
 // @route   POST /api/users/
 // @desc    create a product
-// access   Public
+// access   Private
 export const createProduct = async(req: Request, res: Response) => {
     try{
         const product = await Product.create(req.body);
@@ -29,7 +29,7 @@ export const createProduct = async(req: Request, res: Response) => {
 
 // @route   DELETE /api/users/:id
 // @desc    delete a product
-// access   Public
+// access   Private
 export const deleteProduct = async(req: Request, res: Response) => {
     try{
         await Product.deleteOne( {_id: req.params.id} );
@@ -42,7 +42,7 @@ export const deleteProduct = async(req: Request, res: Response) => {
 
 // @route   PUT /api/users/:id
 // @desc    update a product
-// access   Public
+// access   Private
 export const updateProduct = async(req: Request, res: Response) => {
     try{
         const { name, description } = req.body;
