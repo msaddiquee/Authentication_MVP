@@ -5,6 +5,11 @@ import bcrypt from "bcrypt";
 import { User } from "../models/userModel.js";
 import { Types } from "mongoose";
 
+const nodeEnv = process.env.NODE_ENV;
+if (!nodeEnv) {
+    throw new Error("No node environment found");
+}
+
 // @route   POST /api/users/
 // @desc    register a user
 // access   Public
@@ -33,13 +38,20 @@ const registerUser = asyncHandler(async(req: Request, res: Response) => {
         email,
         password: hashedPassword,
     });
-
+    
     if (user){
+        const token = generateToken(user._id);
+
+        res.cookie('token', token, {
+            httpOnly: true,   // Not accessible via JavaScript
+            secure: nodeEnv === "production",    // Set to true in production (HTTPS)
+        }).send({ success: true });
+        
         res.status(201).json({ 
             _id: user.id,
             name: user.name,
             email: user.email,
-            token: generateToken(user._id),
+            // token: generateToken(user._id),
         });
     } else {
         res.status(400);
@@ -56,11 +68,18 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
     const user = await User.findOne({ email });
     
     if (user && (await bcrypt.compare(password, user.password))) {
+        const token = generateToken(user._id);
+
+        res.cookie('token', token, {
+            httpOnly: true,   // Not accessible via JavaScript
+            secure: nodeEnv === "production",    // Set to true in production (HTTPS)
+        }).send({ success: true });
+
         res.status(200).json({ 
             _id: user.id,
             name: user.name,
             email: user.email,
-            token: generateToken(user._id),
+            // token: generateToken(user._id),
         });
     }
 
