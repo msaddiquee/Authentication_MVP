@@ -42,8 +42,8 @@ const registerUser = asyncHandler(async(req: Request, res: Response) => {
         const token = generateToken(user._id);
 
         res.cookie('token', token, {
-            httpOnly: true,   // Not accessible via JavaScript
-            secure: nodeEnv === "production",    // Set to true in production (HTTPS)
+            httpOnly: true,
+            secure: nodeEnv === "production",
             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 30 * 24 * 60 * 60 * 1000
         });
@@ -72,8 +72,8 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
         const token = generateToken(user._id);
 
         res.cookie('token', token, {
-            httpOnly: true,   // Not accessible via JavaScript
-            secure: nodeEnv === "production",    // Set to true in production (HTTPS)
+            httpOnly: true, 
+            secure: nodeEnv === "production",
             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 30 * 24 * 60 * 60 * 1000
         });
@@ -82,7 +82,6 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
             _id: user.id,
             name: user.name,
             email: user.email,
-            // token: generateToken(user._id),
         });
     }
 
@@ -93,7 +92,7 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
 });
 
 // @route   POST /api/users/logout
-// @desc    POST user data
+// @desc    logout user
 // access   Private
 const logoutUser = asyncHandler(async (req: Request, res: Response) => {
     res.cookie("token", "", {
