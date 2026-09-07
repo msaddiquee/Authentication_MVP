@@ -9,7 +9,7 @@ if (!nodeEnv) {
     throw new Error("No node environment found");
 }
 
-// @route   POST /api/users/
+// @route   POST /api/users/signup/
 // @desc    register a user
 // access   Public
 const registerUser = asyncHandler(async(req: Request, res: Response) => {

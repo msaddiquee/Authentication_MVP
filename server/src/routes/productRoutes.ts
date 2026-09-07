@@ -4,7 +4,7 @@ import { protect } from "../middleware/authMiddleware.js";
 
 export const router = Router();
 
-router.get("/", protect,getAllProducts);
+router.get("/", protect, getAllProducts);
 router.post("/", protect, createProduct);
 router.delete("/:id", protect, deleteProduct);
 router.put("/:id", protect, updateProduct);

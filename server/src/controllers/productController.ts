@@ -1,7 +1,7 @@
 import { Product } from "../models/productModel.js";
 import type { Request, Response } from "express";
 
-// @route   POST /api/users/
+// @route   POST /api/products/
 // @desc    get all products
 // access   Private
 export const getAllProducts = async(req: Request, res: Response) => {
@@ -14,7 +14,7 @@ export const getAllProducts = async(req: Request, res: Response) => {
     }
 };
 
-// @route   POST /api/users/
+// @route   POST /api/products/
 // @desc    create a product
 // access   Private
 export const createProduct = async(req: Request, res: Response) => {
@@ -27,7 +27,7 @@ export const createProduct = async(req: Request, res: Response) => {
     }
 };
 
-// @route   DELETE /api/users/:id
+// @route   DELETE /api/products/:id
 // @desc    delete a product
 // access   Private
 export const deleteProduct = async(req: Request, res: Response) => {
@@ -40,7 +40,7 @@ export const deleteProduct = async(req: Request, res: Response) => {
     }
 };
 
-// @route   PUT /api/users/:id
+// @route   PUT /api/products/:id
 // @desc    update a product
 // access   Private
 export const updateProduct = async(req: Request, res: Response) => {
