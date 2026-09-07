@@ -10,9 +10,17 @@ import cookieParser from "cookie-parser";
 export const PORT = process.env.PORT;
 export const app: Express = express();
 
+const clientURL = process.env.CLIENT_URL
+if (!clientURL) {
+    throw new Error("Client URL not found in '.env'");
+}
+
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({
+    origin: clientURL,
+    credentials: true,
+}));
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 

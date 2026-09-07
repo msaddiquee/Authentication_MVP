@@ -1,9 +1,8 @@
 import asyncHandler from "express-async-handler";
 import type { Request, Response } from "express";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { User } from "../models/userModel.js";
-import { Types } from "mongoose";
+import { generateToken } from "../utils/generateToken.js";
 
 const nodeEnv = process.env.NODE_ENV;
 if (!nodeEnv) {
@@ -45,7 +44,9 @@ const registerUser = asyncHandler(async(req: Request, res: Response) => {
         res.cookie('token', token, {
             httpOnly: true,   // Not accessible via JavaScript
             secure: nodeEnv === "production",    // Set to true in production (HTTPS)
-        }).send({ success: true });
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            maxAge: 30 * 24 * 60 * 60 * 1000
+        });
         
         res.status(201).json({ 
             _id: user.id,
@@ -73,7 +74,9 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
         res.cookie('token', token, {
             httpOnly: true,   // Not accessible via JavaScript
             secure: nodeEnv === "production",    // Set to true in production (HTTPS)
-        }).send({ success: true });
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            maxAge: 30 * 24 * 60 * 60 * 1000
+        });
 
         res.status(200).json({ 
             _id: user.id,
@@ -87,6 +90,17 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
         res.status(400);
         throw new Error("Invalid Credential");
     }
+});
+
+// @route   POST /api/users/logout
+// @desc    POST user data
+// access   Private
+const logoutUser = asyncHandler(async (req: Request, res: Response) => {
+    res.cookie("token", "", {
+        httpOnly: true,
+        expires: new Date(0),
+    });
+    res.status(200).json({ message: "Logged out successfully" });
 });
 
 // @route   GET /api/users/me
@@ -107,16 +121,9 @@ const getMe = asyncHandler(async(req: Request, res: Response) => {
     })
 });
 
-
-const jwt_secret = process.env.JWT_SECRET || "abc123";
-
-const generateToken = (id: Types.ObjectId | string ) => {
-    return jwt.sign({ id }, jwt_secret, {
-        expiresIn: "30d",
-    })
-}
 export {
     registerUser,
     loginUser,
+    logoutUser,
     getMe,
 }
