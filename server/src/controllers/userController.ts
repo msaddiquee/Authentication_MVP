@@ -74,7 +74,7 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
             httpOnly: true, 
             secure: nodeEnv === "production",
             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-            maxAge: 30 * 24 * 60 * 60 * 1000
+            maxAge: 30 * 24 * 60 * 60 * 1000,
         });
 
         res.status(200).json({ 
@@ -95,7 +95,9 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
 // access   Private
 const logoutUser = asyncHandler(async (req: Request, res: Response) => {
     res.cookie("token", "", {
-        httpOnly: true,
+        httpOnly: true, 
+        secure: nodeEnv === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         expires: new Date(0),
     });
     res.status(200).json({ message: "Logged out successfully" });
