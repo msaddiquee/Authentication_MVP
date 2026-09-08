@@ -145,7 +145,7 @@ const changePassword = asyncHandler(async(req: Request, res: Response) => {
         throw new Error("User not found");
     }
 
-    if (!user && !(await bcrypt.compare(currentPassword, user.password)) ) {
+    if (!(await bcrypt.compare(currentPassword, user.password)) ) {
         res.status(400);
         throw new Error("Current Password is incorrect");
     }
