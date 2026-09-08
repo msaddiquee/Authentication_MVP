@@ -9,7 +9,7 @@ if (!nodeEnv) {
     throw new Error("No node environment found");
 }
 
-// @route   POST /api/users/signup/
+// @route   POST /api/users/register/
 // @desc    register a user
 // access   Public
 const registerUser = asyncHandler(async(req: Request, res: Response) => {
@@ -52,7 +52,6 @@ const registerUser = asyncHandler(async(req: Request, res: Response) => {
             _id: user.id,
             name: user.name,
             email: user.email,
-            // token: generateToken(user._id),
         });
     } else {
         res.status(400);
@@ -120,9 +119,15 @@ const getMe = asyncHandler(async(req: Request, res: Response) => {
     })
 });
 
+const deleteUser = asyncHandler(async(req: Request, res: Response) => {
+    await User.findByIdAndDelete( req.user.id );
+    res.status(204).send();
+});
+
 export {
     registerUser,
     loginUser,
     logoutUser,
     getMe,
+    deleteUser,
 }
