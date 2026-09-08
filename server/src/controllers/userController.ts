@@ -121,9 +121,38 @@ const getMe = asyncHandler(async(req: Request, res: Response) => {
     })
 });
 
+// @route   DELETE /api/users/me
+// @desc    delete user
+// access   Private
 const deleteUser = asyncHandler(async(req: Request, res: Response) => {
     await User.findByIdAndDelete( req.user.id );
     res.status(204).send();
+});
+
+// @route   POST /api/users/changepassword
+// @desc    change login user password
+// access   Private
+const changePassword = asyncHandler(async(req: Request, res: Response) => {
+    const { currentPassword, newPassword, confirmNewPassword } = req.body;
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+        res.status(404);
+        throw new Error("Invalid Credentails");
+    }
+
+    const user = await User.findById( req.user.id );
+    if (!user || !user.password) {
+        res.status(404);
+        throw new Error("User not found");
+    }
+
+    if (!user && !(await bcrypt.compare(currentPassword, user.password)) ) {
+        res.status(400);
+        throw new Error("Current Password is incorrect");
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
 });
 
 export {
@@ -132,4 +161,5 @@ export {
     logoutUser,
     getMe,
     deleteUser,
+    changePassword
 }
