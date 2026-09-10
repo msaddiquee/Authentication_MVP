@@ -6,6 +6,7 @@ import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import "./utils/sendEmail.js";
 
 export const PORT = process.env.PORT;
 export const app: Express = express();
