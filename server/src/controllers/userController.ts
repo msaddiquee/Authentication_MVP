@@ -1,8 +1,10 @@
 import asyncHandler from "express-async-handler";
 import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { User } from "../models/userModel.js";
 import { generateToken } from "../utils/generateToken.js";
+import { sendVerificationEmail } from "../utils/sendEmail.js";
 
 const nodeEnv = process.env.NODE_ENV;
 if (!nodeEnv) {
@@ -31,14 +33,31 @@ const registerUser = asyncHandler(async(req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
 
+    // Generate verification token (expires in 24 hours)
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
     // Create User
     const user = await User.create({
         name,
         email,
         password: hashedPassword,
+        verified: false,
+        verificationToken,
+        verificationTokenExpires,
     });
     
     if (user){
+        // Construct verification URL
+        const clientURL = process.env.CLIENT_URL || "http://localhost:5173";
+        const baseUrl = clientURL.endsWith("/") ? clientURL.slice(0, -1) : clientURL;
+        const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
+
+        // Send verification email in background
+        sendVerificationEmail(user.email, verificationUrl).catch((err) => {
+            console.error("Failed to send verification email:", err.message);
+        });
+
         const token = generateToken(user._id);
 
         res.cookie('token', token, {
@@ -52,6 +71,8 @@ const registerUser = asyncHandler(async(req: Request, res: Response) => {
             _id: user.id,
             name: user.name,
             email: user.email,
+            verified: user.verified,
+            message: "Registration successful. Please check your email to verify your account.",
         });
     } else {
         res.status(400);

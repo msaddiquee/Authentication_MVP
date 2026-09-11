@@ -5,6 +5,8 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: [true, "Please add an email"], unique: true },
     password: { type: String, required: [true, "Please add a password"], },
     verified: { type: Boolean, required: true, default: false },
+    verificationToken: { type: String },
+    verificationTokenExpires: { type: Date },
 }, { versionKey: false, timestamps: true });
 
 export const User = mongoose.model("User", userSchema);
