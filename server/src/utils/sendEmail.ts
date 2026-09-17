@@ -27,34 +27,14 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
 /**
  * Sends an email verification link to a user after signup.
  */
-export const sendVerificationEmail = async (to: string, verificationUrl: string) => {
-  const mailOptions = {
-    from: `"${process.env.APP_NAME || "Authentication App"}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
-    to,
-    subject: "Verify Your Email Address",
-    text: `Please verify your email address by visiting: ${verificationUrl}`,
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
-        <h2 style="color: #333;">Verify Your Email</h2>
-        <p style="color: #555; line-height: 1.5;">
-          Thank you for signing up! Please click the button below to verify your email address:
-        </p>
-        <div style="text-align: center; margin: 25px 0;">
-          <a href="${verificationUrl}" style="background-color: #007bff; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
-            Verify Email
-          </a>
-        </div>
-        <p style="color: #777; font-size: 13px;">
-          Or copy and paste this link into your browser:<br />
-          <a href="${verificationUrl}" style="color: #007bff;">${verificationUrl}</a>
-        </p>
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-        <p style="color: #999; font-size: 12px;">This link will expire in 24 hours. If you didn't create an account, you can safely ignore this email.</p>
-      </div>
-    `,
-  };
-
-  return transporter.sendMail(mailOptions);
+export const sendVerificationEmail = async (to: string, subject: string, message: string) => {
+	transporter.sendMail({
+		to: to,
+		subject: subject,
+		html: message,
+	});
+	console.log("email is sent");
 };
 
+sendVerificationEmail()
 export default sendVerificationEmail;
