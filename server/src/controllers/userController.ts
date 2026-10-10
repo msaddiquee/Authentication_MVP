@@ -53,20 +53,13 @@ const registerUser = asyncHandler(async(req: Request, res: Response) => {
         const baseUrl = clientURL.endsWith("/") ? clientURL.slice(0, -1) : clientURL;
         const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
 
-        // Send verification email in background
-        sendVerificationEmail(user.email, verificationUrl).catch((err) => {
-            console.error("Failed to send verification email:", err.message);
-        });
+        // Send verification email
+        try {
+            await sendVerificationEmail(user.email, verificationUrl);
+        } catch (err: any) {
+            console.error("❌ Failed to send verification email:", err);
+        }
 
-        const token = generateToken(user._id);
-
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: nodeEnv === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-            maxAge: 30 * 24 * 60 * 60 * 1000
-        });
-        
         res.status(201).json({ 
             _id: user.id,
             name: user.name,
@@ -89,6 +82,11 @@ const loginUser = asyncHandler(async(req: Request, res: Response) => {
     const user = await User.findOne({ email });
     
     if (user && (await bcrypt.compare(password, user.password))) {
+        if (!user.verified) {
+            res.status(403);
+            throw new Error("Please verify your email before logging in");
+        }
+
         const token = generateToken(user._id);
 
         res.cookie('token', token, {
@@ -177,11 +175,87 @@ const changePassword = asyncHandler(async(req: Request, res: Response) => {
     res.status(200).json("Password Changed Successfully");
 });
 
+// @route   GET /api/users/verify-email
+// @desc    Verify user email via token query param
+// @access  Public
+const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
+    const { token } = req.query;
+
+    if (!token || typeof token !== "string") {
+        res.status(400);
+        throw new Error("Verification token is required");
+    }
+
+    const user = await User.findOne({
+        verificationToken: token,
+        verificationTokenExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+        res.status(400);
+        throw new Error("Invalid or expired verification token");
+    }
+
+    user.verified = true;
+    user.verificationToken = null;
+    user.verificationTokenExpires = null;
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: "Email verified successfully! You can now log in.",
+    });
+});
+
+// @route   POST /api/users/resend-verification
+// @desc    Resend verification email
+// @access  Public
+const resendVerificationEmail = asyncHandler(async (req: Request, res: Response) => {
+    const { email } = req.body;
+
+    if (!email) {
+        res.status(400);
+        throw new Error("Email is required");
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+        res.status(404);
+        throw new Error("User with this email does not exist");
+    }
+
+    if (user.verified) {
+        res.status(400);
+        throw new Error("This account is already verified");
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    user.verificationToken = verificationToken;
+    user.verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await user.save();
+
+    const clientURL = process.env.CLIENT_URL || "http://localhost:5173";
+    const baseUrl = clientURL.endsWith("/") ? clientURL.slice(0, -1) : clientURL;
+    const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
+
+    try {
+        await sendVerificationEmail(user.email, verificationUrl);
+    } catch (err: any) {
+        console.error("❌ Failed to resend verification email:", err);
+    }
+
+    res.status(200).json({
+        message: "Verification email resent. Please check your inbox.",
+    });
+});
+
 export {
     registerUser,
     loginUser,
     logoutUser,
     getMe,
     deleteUser,
-    changePassword
+    changePassword,
+    verifyEmail,
+    resendVerificationEmail,
 }
