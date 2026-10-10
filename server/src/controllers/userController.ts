@@ -48,10 +48,8 @@ const registerUser = asyncHandler(async(req: Request, res: Response) => {
     });
     
     if (user){
-        // Construct verification URL
-        const clientURL = process.env.CLIENT_URL || "http://localhost:5173";
-        const baseUrl = clientURL.endsWith("/") ? clientURL.slice(0, -1) : clientURL;
-        const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
+        // Construct verification URL pointing directly to the backend
+        const verificationUrl = `http://localhost:${process.env.PORT || 3000}/api/users/verify-email?token=${verificationToken}`;
 
         // Send verification email
         try {
@@ -181,7 +179,7 @@ const changePassword = asyncHandler(async(req: Request, res: Response) => {
 const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
     const { token } = req.query;
 
-    if (!token || typeof token !== "string") {
+    if (!token || typeof(token) !== "string") {
         res.status(400);
         throw new Error("Verification token is required");
     }
@@ -201,51 +199,19 @@ const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
     user.verificationTokenExpires = null;
     await user.save();
 
+    // If opened directly in browser, show a clean confirmation page
+    if (req.accepts("html")) {
+        return res.send(`
+            <div style="font-family: Arial, sans-serif; text-align: center; margin-top: 80px;">
+                <h1 style="color: #28a745;">✅ Email Verified Successfully!</h1>
+                <p style="font-size: 18px; color: #555;">Your account is now activated. You can now log in via Postman.</p>
+            </div>
+        `);
+    }
+
     res.status(200).json({
         success: true,
         message: "Email verified successfully! You can now log in.",
-    });
-});
-
-// @route   POST /api/users/resend-verification
-// @desc    Resend verification email
-// @access  Public
-const resendVerificationEmail = asyncHandler(async (req: Request, res: Response) => {
-    const { email } = req.body;
-
-    if (!email) {
-        res.status(400);
-        throw new Error("Email is required");
-    }
-
-    const user = await User.findOne({ email });
-    if (!user) {
-        res.status(404);
-        throw new Error("User with this email does not exist");
-    }
-
-    if (user.verified) {
-        res.status(400);
-        throw new Error("This account is already verified");
-    }
-
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-    user.verificationToken = verificationToken;
-    user.verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    await user.save();
-
-    const clientURL = process.env.CLIENT_URL || "http://localhost:5173";
-    const baseUrl = clientURL.endsWith("/") ? clientURL.slice(0, -1) : clientURL;
-    const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
-
-    try {
-        await sendVerificationEmail(user.email, verificationUrl);
-    } catch (err: any) {
-        console.error("❌ Failed to resend verification email:", err);
-    }
-
-    res.status(200).json({
-        message: "Verification email resent. Please check your inbox.",
     });
 });
 
@@ -257,5 +223,4 @@ export {
     deleteUser,
     changePassword,
     verifyEmail,
-    resendVerificationEmail,
 }
