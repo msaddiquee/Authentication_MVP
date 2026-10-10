@@ -36,5 +36,5 @@ export const sendVerificationEmail = async (to: string, subject: string, message
 	console.log("email is sent");
 };
 
-sendVerificationEmail()
+sendVerificationEmail();
 export default sendVerificationEmail;
